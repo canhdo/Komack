@@ -1,0 +1,237 @@
+---
+title: "MNL Model of Komack"
+author: "Canh DO"
+date: "4/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+```
+
+
+```{r, message=FALSE}
+library(readr)
+library(bbmle)
+library(maxLik)
+library(jtools)
+library(stringr)
+library(broom)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+library(dplyr)
+```
+
+# Data Reading from csv file 
+```{r, echo=FALSE}
+data <- read_csv("20200423_Data.csv")
+#names(data)
+#head(data,10)
+summary(data)
+```
+
+```{r, echo=FALSE}
+# blank_theme <- theme_minimal()+
+#   theme(
+#   axis.title.x = element_blank(),
+#   axis.title.y = element_blank(),
+#   panel.border = element_blank(),
+#   panel.grid=element_blank(),
+#   axis.ticks = element_blank(),
+#   plot.title=element_text(size=14, face="bold")
+#   )
+# data %>% 
+#         # group_by(Mode) %>% 
+#         count(Age) %>%
+#         mutate(Age = case_when(Age == 1 ~ "Age ~20", 
+#                                  Age == 2 ~ "Age 21-30",
+#                                  Age == 3 ~ "Age 31-40",
+#                                  Age == 4 ~ "Age 41-50",
+#                                  Age == 5 ~ "Age 51-60",
+#                                  Age == 6 ~ "Age >60",)) %>%
+#         mutate(lab.ypos = cumsum(n) - 0.5*n) %>%
+#         ggplot(aes(x = "", y = n, fill = Age)) + 
+#         blank_theme +
+#         geom_bar(width = 1, stat = "identity") + 
+#         theme(axis.text.x=element_blank()) +
+#         geom_text(aes(y = lab.ypos, label = n), color = "white")+
+#         coord_polar(theta = "y", start=0)
+```
+
+
+# Defining Log-likehood function
+```{r, echo=FALSE}
+##### Defining Log-likehood function #####
+LL <- function (x, inData)
+{ #Begin function
+ 
+ # Assign name to parameter variables
+ for (i in 1:length(x)) assign(names(x)[i],x[i])
+ # Utility function
+ # Dummies (or indicator) for Age
+ Age1 <- ifelse(inData$Age==1,1,0) # <=20 
+ Age2 <- ifelse(inData$Age==2,1,0) # =21-30
+ Age3 <- ifelse(inData$Age==3,1,0) # =31-40
+ Age4 <- ifelse(inData$Age==4,1,0) # =41-50
+ Age5 <- ifelse(inData$Age==5,1,0) # =51-60
+ Age6 <- ifelse(inData$Age==6,1,0) # >60
+ 
+ 
+ # Dummies (or indicator) for Occupation
+ Job1 <- ifelse(inData$Job==1,1,0) # Goverment offical
+ Job2 <- ifelse(inData$Job==2,1,0) # Businessperson
+ Job3 <- ifelse(inData$Job==3,1,0) # Students
+ Job4 <- ifelse(inData$Job==4,1,0) # Professor
+ Job5 <- ifelse(inData$Job==5,1,0) # Salesperson
+ Job6 <- ifelse(inData$Job==6,1,0) # Housekeeper
+ Job7 <- ifelse(inData$Job==7,1,0) # Private firm employee
+ Job8 <- ifelse(inData$Job==8,1,0) # Self-employes person
+ Job9 <- ifelse(inData$Job==9,1,0) # Retired
+ Job10 <- ifelse(inData$Job==10,1,0) # Others
+ 
+ 
+ # Dummies (or indicator) for Monthly household income
+ Hinc1 <- ifelse(inData$Hinc==1,1,0) # Low income <4,000,000 kip
+ Hinc2 <- ifelse(inData$Hinc==2,1,0) # 4,000,000 kip< Midle income <10,000,000 kip
+ Hinc3 <- ifelse(inData$Hinc==3,1,0) # High income >10,000,000 kip
+ 
+ # Utility function
+ 
+ V1 <- 0 
+ V2 <- Constant_C + inData$Nationality*Nat_C + inData$Gender*Gen_C + Age2*Age2_C + Age3*Age3_C + Age4*Age4_C + Age5*Age5_C + Age6*Age6_C + Job1*Job1_C + Job2*Job2_C + Job3*Job3_C + Job7*Job4_C + Hinc3*Hinc3_C + Hinc2*Hinc2_C + inData$Hcar*Hcar_C 
+ V3 <- Constant_T + inData$Nationality*Nat_T + inData$Gender*Gen_T + Age2*Age2_T + Age3*Age3_T + Age4*Age4_T + Age5*Age5_T + Age6*Age6_T + Job1*Job1_T + Job2*Job2_T + Job3*Job3_T + Job7*Job4_T + Hinc3*Hinc3_T + Hinc2*Hinc2_T + inData$Hcar*Hcar_T 
+ V4 <- Constant_B + inData$Nationality*Nat_B + inData$Gender*Gen_B + Age2*Age2_B + Age3*Age3_B + Age4*Age4_B + Age5*Age5_B + Age6*Age6_B + Job1*Job1_B + Job2*Job2_B + Job3*Job3_B + Job7*Job4_B + Hinc3*Hinc3_B + Hinc2*Hinc2_B + inData$Hcar*Hcar_B 
+ V5 <- Constant_V + inData$Nationality*Nat_V + inData$Gender*Gen_V + Age2*Age2_V + Age3*Age3_V + Age4*Age4_V + Age5*Age5_V + Age6*Age6_V + Job1*Job1_V + Job2*Job2_V + Job3*Job3_V + Job7*Job4_V + Hinc3*Hinc3_V + Hinc2*Hinc2_V + inData$Hcar*Hcar_V 
+ 
+ 
+ 
+ # Denominator
+ Sum <- exp(V1) + exp(V2) + exp(V3) + exp(V4) + exp(V5)
+
+ 
+ # Probabilities
+ P1 <- exp(V1)/Sum
+ P2 <- exp(V2)/Sum
+ P3 <- exp(V3)/Sum
+ P4 <- exp(V4)/Sum
+ P5 <- exp(V5)/Sum
+ 
+ 
+
+ # Dummies (or indicator) for alternatives
+ D1 <- ifelse(inData$Choice == 1,1,0)
+ D2 <- ifelse(inData$Choice == 2,1,0)
+ D3 <- ifelse(inData$Choice == 3,1,0)
+ D4 <- ifelse(inData$Choice == 4,1,0)
+ D5 <- ifelse(inData$Choice == 5,1,0)
+
+ # Log-likelihood function
+ L <- (sum(D1*log(P1) + D2*log(P2) + D3*log(P3) + D4*log(P4) + D5*log(P5)))
+ return(L)
+} #End function
+```
+
+# Model Estimation
+```{r, message = FALSE, echo=FALSE}
+VarName = c("Constant_C","Constant_T","Constant_B","Constant_V","Nat_C","Nat_T","Nat_B","Nat_V","Gen_C","Gen_T","Gen_B","Gen_V","Age2_C","Age2_T","Age2_B","Age2_V","Age3_C","Age3_T","Age3_B","Age3_V","Age4_C","Age4_T","Age4_B","Age4_V","Age5_C","Age5_T","Age5_B","Age5_V","Age6_C","Age6_T","Age6_B","Age6_V","Job1_C","Job1_T","Job1_B","Job1_V","Job2_C","Job2_T","Job2_B","Job2_V","Job3_C","Job3_T","Job3_B","Job3_V","Job4_C","Job4_T","Job4_B","Job4_V","Hinc3_C","Hinc3_T","Hinc3_B","Hinc3_V","Hinc2_C","Hinc2_T","Hinc2_B","Hinc2_V","Hcar_C","Hcar_T","Hcar_B","Hcar_V")
+initValue = rep(0,length(VarName))
+names(initValue) = VarName
+
+MNL <- maxLik(logLik=LL,
+ start=initValue,
+ inData = data,
+ tol=1e-6,iterlim=5000,method="BFGS",control=list(printLevel=0))
+```
+
+```{r, echo=FALSE}
+# MNL$estimate[str_detect(names(MNL$estimate),"C")]
+# MNL$estimate[str_detect(names(MNL$estimate),"T")]
+# MNL$estimate[str_detect(names(MNL$estimate),"B")]
+# MNL$estimate[str_detect(names(MNL$estimate),"V")]
+
+out = summary(MNL)
+print(summary(MNL))
+```
+
+```{r, echo=FALSE}
+out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>% 
+        rownames_to_column(var = "ParName") %>%
+        separate(col = "ParName", into = c("ParName", "Mode")) %>%
+        mutate(Mode = case_when(Mode == "C" ~ "Car",
+                                       Mode == "T" ~ "Taxi",
+                                       Mode == "B" ~ "Bus",
+                                       Mode == "V" ~ "VCAT")) %>%
+        mutate(Sign = case_when(Estimate >0 ~ "Positive",
+                                    Estimate <=0 ~ "Negative"
+                                    )) %>%
+        mutate(ParName = case_when(ParName == "Nat" ~ "Foreigner",
+                                   ParName == "Gen" ~ "Male",
+                                   ParName == "Job1" ~ "Goverment offical",
+                                 ParName == "Job2" ~ "Businessperson",
+                                 ParName == "Job3" ~ "Students",
+                                 ParName == "Job4" ~ "Professor",
+                                 ParName == "Job5" ~ "Salesperson",
+                                 ParName == "Job6" ~ "Housekeeper",
+                                 ParName == "Job7" ~ "Private firm employee",
+                                 ParName == "Job8" ~ "Self-employes person",
+                                 ParName == "Job9" ~ "Retired",
+                                 ParName == "Job10" ~ "Others",
+                                 ParName == "Age1" ~ "Age ~20", 
+                                 ParName == "Age2" ~ "Age 21-30",
+                                 ParName == "Age3" ~ "Age 31-40",
+                                 ParName == "Age4" ~ "Age 41-50",
+                                 ParName == "Age5" ~ "Age 51-60",
+                                 ParName == "Age6" ~ "Age >60",
+                                 ParName == "Hinc1" ~ "Income (low)",
+                                 ParName == "Hinc2" ~ "Income (Medium)",
+                                 ParName == "Hinc3" ~ "Income (High)",
+                                 ParName == "Hcar" ~ "Number of Cars",
+                                   TRUE ~ ParName
+                                    )) %>%
+        mutate(Impact = case_when(`Pr(> t)` <=0.1 ~ "Significant",
+                                  TRUE ~ "Unsignificant"
+                                    ))-> data_plot
+```
+
+```{r, echo=FALSE}
+
+ ggplot(data_plot,mapping = aes(x = ParName, y = Estimate, fill = Impact))+
+         geom_col() +
+         coord_flip() +
+         facet_wrap(~ Mode)
+
+```
+
+```{r}
+
+ ggplot(data_plot,mapping = aes(x = ParName, y = `Pr(> t)`, fill = Impact))+
+         geom_col() +
+         coord_flip() +
+         facet_wrap(~ Mode)
+
+```
+
+```{r}
+
+ ggplot(data_plot,mapping = aes(x = ParName, y = `t value`, fill = Impact))+
+         geom_col() +
+         coord_flip() +
+         facet_wrap(~ Mode)
+
+```
+
+
+# <<<Fourth step>>>
+```{r}
+ LL0 <- NROW(data)*log(1/5) ## Initial log-likelihood
+LL1 <- logLik(MNL) ## Converged log-likelihood
+## McFadden's Rho square
+Rho <- 1-(LL1/LL0)
+Rho.adj <- 1-((LL1-length(coef(MNL)))/LL0)
+GoF <- cbind(LL0,LL1, Rho, Rho.adj) ## Goodness of fit
+print(GoF)
+```
+
+
+
