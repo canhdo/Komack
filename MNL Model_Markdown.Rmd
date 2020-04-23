@@ -1,0 +1,104 @@
+---
+title: "MNL Model of Komack"
+author: "Canh DO"
+date: "4/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+```
+
+
+```{r, message=FALSE}
+library(readr)
+library(bbmle)
+```
+
+#Data Reading from csv file  
+```{r, echo=FALSE}
+data <- read_csv("20200319SPFull5.csv")
+names(data)
+summary(data)
+```
+
+
+# Defining Log-likehood function
+```{r}
+##### Defining Log-likehood function #####
+LL <- function (Ccar,Ctaxi,Cbus,Cvcat,
+                NatC,NatT,NatB,NatV,SexC,SexT,SexB,SexV,AgeC,AgeT,AgeB,AgeV,GovtC,GovtT,GovtB,GovtV,BusnesC,BusnesT,BusnesB,BusnesV,PritC,PritT,PritB,PritV,StudC,StudT,StudB,StudV,HincC,HincT,HincB,HincV,VehOC,VehOT,VehOB,VehOV,AirC,AirT,AirB,AirV,
+                BusiC,BusiT,BusiB,BusiV,EduC,EduT,EduB,EduV,HoliC,HoliT,HoliB,HoliV,BackC,BackT,BackB,BackV,FreqC,FreqT,FreqB,FreqV,
+                HomeC,HomeT,HomeB,HomeV,HotelC,HotelT,HotelB,HotelV,OfficeC,OfficeT,OfficeB,OfficeV,
+                ActC,ActT,ActB,ActV,TppC,TppT,TppB,TppV,LugC,LugT,LugB,LugV,WeaC,WeaT,WeaB,WeaV,Cost,Time,Delay,Wait,Access,Safety,Park,Transfer
+        )
+               
+  
+{ #Begin function
+  
+  # Utility function
+  
+  V1   <- 0                                                            
+  V2   <- Ccar     + data$VehCost_Car*Cost  + data$Vehtime_Car*Time    + data$Delay_Car*Delay  + data$Wtime_Car*Wait  + data$Accesstime_Car*Access      + data$NoTranfer_Car* Transfer   + data$ParkFee_Car*Park                 + data$Safe_Car*Safety     + data$Weacon_Car*WeaC  + data$SP_AccCar*ActC  + data$SP_TripCar*TppC   + data$SP_LugCar*LugC            + data$Nationality*NatC  + data$Age*AgeC   + data$Gender*SexC        + data$Hinc*HincC + data$CarOwner*VehOC  + data$AirClass*AirC       + data$TimeTraveled*FreqC      + ifelse(data$Career==1,1,0)*GovtC   + ifelse(data$Career==3,1,0)*PritC + ifelse(data$Career==4,1,0)*StudC                                  
+  V3   <- Ctaxi    + data$VehCost_Taxi*Cost + data$Vehtime_Taxi*Time   + data$Delay_Taxi*Delay + data$Wtime_Taxi*Wait + data$Accesstime_Taxi*Access     + data$NoTranfer_Taxi* Transfer       + data$Safe_Taxi*Safety    + data$Weacon_Taxi*WeaT + data$SP_AccTaxi*ActT + data$SP_TripTaxi*TppT  + data$SP_LugTaxi*LugT           + data$Nationality*NatT  + data$Age*AgeT   + data$Gender*SexT        + data$Hinc*HincT + data$CarOwner*VehOT  + data$AirClass*AirT       + data$TimeTraveled*FreqT      + ifelse(data$Career==1,1,0)*GovtT   + ifelse(data$Career==3,1,0)*PritT + ifelse(data$Career==4,1,0)*StudT                      
+  V4   <- Cbus     + data$VehCost_Bus*Cost  + data$Vehtime_Bus*Time    + data$Delay_Bus*Delay  + data$Wtime_Bus*Wait  + data$Accesstime_Bus*Access      + data$NoTranfer_Bus* Transfer        + data$Safe_Taxi*Safety    + data$Weacon_Bus*WeaB  + data$SP_AccBus*ActB  + data$SP_TripBus*TppB   + data$SP_LugBus*LugB            + data$Nationality*NatB  + data$Age*AgeB   + data$Gender*SexB        + data$Hinc*HincB + data$CarOwner*VehOB  + data$AirClass*AirB       + data$TimeTraveled*FreqB      + ifelse(data$Career==1,1,0)*GovtB   + ifelse(data$Career==3,1,0)*PritB + ifelse(data$Career==4,1,0)*StudB            
+  V5   <- Cvcat    + data$VehCost_VCAT*Cost + data$Vehtime_VCAT*Time                           + data$Wtime_VCAT*Wait + data$Accesstime_VCAT*Access     + data$NoTranfer_VCAT* Transfer       + data$Safe_VCAT*Safety    + data$Weacon_VCAT*WeaV + data$SP_AccVCAT*ActV + data$SP_TripVCAT*TppV  + data$SP_LugVCAT*LugV           + data$Nationality*NatV  + data$Age*AgeV   + data$Gender*SexV        + data$Hinc*HincV + data$CarOwner*VehOV  + data$AirClass*AirV       + data$TimeTraveled*FreqV      + ifelse(data$Career==1,1,0)*GovtV   + ifelse(data$Career==3,1,0)*PritV + ifelse(data$Career==4,1,0)*StudV        
+  
+  
+  
+  
+  # Denominator
+    Sum <- exp(V1) + exp(V2) + exp(V3) + exp(V4) + exp(V5)
+
+  
+  # Probabilities
+  P1 <- exp(V1)/Sum
+  P2 <- exp(V2)/Sum
+  P3 <- exp(V3)/Sum
+  P4 <- exp(V4)/Sum
+  P5 <- exp(V5)/Sum
+  
+  
+
+  # Dummies (or indicator) for alternatives
+  D1 <- ifelse(data$Choice == 1,1,0)
+  D2 <- ifelse(data$Choice == 2,1,0)
+  D3 <- ifelse(data$Choice == 3,1,0)
+  D4 <- ifelse(data$Choice == 4,1,0)
+  D5 <- ifelse(data$Choice == 5,1,0)
+  
+  
+  
+  
+  # Log-likelihood function
+  L <- -(sum(D1*log(P1) + D2*log(P2) + D3*log(P3) + D4*log(P4) + D5*log(P5)))
+  return(L)
+} #End function
+```
+
+#
+Model Estimation
+```{r}
+
+  initValue <- list(Ccar=0,Ctaxi=0,Cbus=0,Cvcat=0,WeaC=0,WeaT=0,WeaB=0,WeaV=0,ActC=0,ActT=0,ActB=0,ActV=0,TppC=0,TppT=0,TppB=0,TppV=0,LugC=0,LugT=0,LugB=0,LugV=0,
+                    Safety=0,Time=0,Cost=0,Delay=0,Wait=0,Access=0,Park=0,Transfer=0,
+                    AgeC=0,AgeT=0,AgeB=0,AgeV=0,SexC=0,SexT=0,SexB=0,SexV=0,NatC=0,NatT=0,NatB=0,NatV=0,
+                    HincC=0,HincT=0,HincB=0,HincV=0,VehOC=0,VehOT=0,VehOB=0,VehOV=0,AirC=0,AirT=0,AirB=0,AirV=0,
+                    FreqC=0,FreqT=0,FreqB=0,FreqV=0,GovtC=0,GovtT=0,GovtB=0,GovtV=0,PritC=0,PritT=0,PritB=0,PritV=0,StudC=0,StudT=0,StudB=0,StudV=0
+                    
+                   )
+  
+  MNL <- mle2(LL, start = initValue, method = "BFGS", control = list(trace = 10000, maxit = 10000))
+  summary(MNL)
+
+#<<<Fourth step>>>
+  LL0 <- NROW(data)*log(1/5)     ## Initial log-likelihood
+  LL1 <- logLik(MNL)             ## Converged log-likelihood
+  ## McFadden's Rho square
+  Rho     <- 1-(LL1/LL0)
+  Rho.adj <- 1-((LL1-length(coef(MNL)))/LL0)
+  GoF <- cbind(LL0,LL1, Rho, Rho.adj)  ## Goodness of fit
+  print(GoF)
+```
+
+
