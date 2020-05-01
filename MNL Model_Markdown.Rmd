@@ -60,7 +60,7 @@ summary(data)
 ```
 
 
-# Defining Log-likehood function
+# Defining Log-likelihoods function
 ```{r, echo=FALSE}
 ##### Defining Log-likehood function #####
 LL <- function (x, inData)

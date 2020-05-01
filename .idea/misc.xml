@@ -12,6 +12,14 @@
             </RMarkdownRenderProfile>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/MNL Model_Markdown_Tufte.Rmd">
+          <value>
+            <RMarkdownRenderProfile>
+              <option name="knitRootDirectory" value="$PROJECT_DIR$" />
+              <option name="lastOutput" value="$PROJECT_DIR$/MNL-Model_Markdown_Tufte.html" />
+            </RMarkdownRenderProfile>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/MNL Model_Notebook.Rmd">
           <value>
             <RMarkdownRenderProfile>
