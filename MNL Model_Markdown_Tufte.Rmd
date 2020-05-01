@@ -3,7 +3,10 @@ title: "MNL Model of Komack"
 author: "Canh DO"
 date: "4/23/2020"
 output:
+<<<<<<< 65e09ee2d2a5a6066bc3ca42f618e93e101cf300
   tufte::tufte_handout: default
+=======
+>>>>>>> Upload May 1:
   tufte::tufte_html: default
 ---
 
@@ -202,7 +205,11 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
                                     ))-> data_plot
 ```
 
+<<<<<<< 65e09ee2d2a5a6066bc3ca42f618e93e101cf300
 ```{r, echo=FALSE}
+=======
+```{r, fig.margin=TRUE, echo=FALSE}
+>>>>>>> Upload May 1:
 
  ggplot(data_plot,mapping = aes(x = ParName, y = Estimate, fill = Impact))+
          geom_col() +
@@ -211,7 +218,11 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 
 ```
 
+<<<<<<< 65e09ee2d2a5a6066bc3ca42f618e93e101cf300
 ```{r}
+=======
+```{r, fig.margin=TRUE, echo=FALSE}
+>>>>>>> Upload May 1:
 
  ggplot(data_plot,mapping = aes(x = ParName, y = `Pr(> t)`, fill = Impact))+
          geom_col() +
@@ -220,7 +231,11 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 
 ```
 
+<<<<<<< 65e09ee2d2a5a6066bc3ca42f618e93e101cf300
 ```{r}
+=======
+```{r, fig.margin=TRUE, echo=FALSE}
+>>>>>>> Upload May 1:
 
  ggplot(data_plot,mapping = aes(x = ParName, y = `t value`, fill = Impact))+
          geom_col() +
@@ -230,7 +245,11 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 ```
 
 
+<<<<<<< 65e09ee2d2a5a6066bc3ca42f618e93e101cf300
 # <<<Fourth step>>>
+=======
+# Fourth step
+>>>>>>> Upload May 1:
 ```{r}
  LL0 <- NROW(data)*log(1/5) ## Initial log-likelihood
 LL1 <- logLik(MNL) ## Converged log-likelihood

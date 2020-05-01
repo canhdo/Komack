@@ -23,11 +23,11 @@ library(tibble)
 library(dplyr)
 ```
 
-# Data Reading from csv file 
+## Data Reading from csv file
 ```{r, echo=FALSE}
 data <- read_csv("20200423_Data.csv")
 #names(data)
-head(data)
+knitr::kable(data)
 #summary(data)
 ```
 
@@ -60,9 +60,8 @@ head(data)
 ```
 
 
-# Defining Log-likelihoods function
+## Defining Log-likelihoods function
 ```{r, echo=FALSE}
-##### Defining Log-likehood function #####
 LL <- function (x, inData)
 { #Begin function
  
@@ -150,9 +149,9 @@ MNL <- maxLik(logLik=LL,
 # MNL$estimate[str_detect(names(MNL$estimate),"B")]
 # MNL$estimate[str_detect(names(MNL$estimate),"V")]
 
-out = summary(MNL)
+out <- summary(MNL)
 #print(summary(MNL))
-kable(out$estimate)
+knitr::kable(out$estimate)
 ```
 
 ```{r, echo=FALSE}
