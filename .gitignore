@@ -1,0 +1,12 @@
+# Created by .ignore support plugin (hsz.mobi)
+venv/Include/
+venv/Lib/site-packages/__pycache__/
+venv/Lib/site-packages/pkg_resources/__pycache__/
+venv/Lib/site-packages/pkg_resources/_vendor/__pycache__/
+venv/Lib/site-packages/pkg_resources/_vendor/packaging/__pycache__/
+venv/Lib/site-packages/pkg_resources/extern/__pycache__/
+venv/Lib/site-packages/setuptools/__pycache__/
+venv/Lib/site-packages/setuptools/_vendor/__pycache__/
+venv/Lib/site-packages/setuptools/_vendor/packaging/__pycache__/
+venv/Lib/site-packages/setuptools/command/__pycache__/
+venv/Lib/site-packages/setuptools/extern/__pycache__/

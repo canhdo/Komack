@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = F)
 ```
 
-
 ```{r, message=FALSE}
 library(readr)
 library(bbmle)
@@ -58,8 +57,6 @@ knitr::kable(data)
          geom_text(aes(y = lab.ypos, label = n), color = "white")+
          coord_polar(theta = "y", start=0)
 ```
-
-
 ## Defining Log-likelihoods function
 ```{r, echo=FALSE}
 LL <- function (x, inData)
@@ -138,9 +135,10 @@ initValue = rep(0,length(VarName))
 names(initValue) = VarName
 
 MNL <- maxLik(logLik=LL,
- start=initValue,
- inData = data,
- tol=1e-6,iterlim=5000,method="BFGS",control=list(printLevel=0))
+              start=initValue,
+              inData = data,
+              tol=1e-6,iterlim=5000,method="BFGS",control=list(printLevel=0)
+              )
 ```
 
 ```{r, echo=FALSE}
@@ -159,43 +157,45 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
         rownames_to_column(var = "ParName") %>%
         separate(col = "ParName", into = c("ParName", "Mode")) %>%
         mutate(Mode = case_when(Mode == "C" ~ "Car",
-                                       Mode == "T" ~ "Taxi",
-                                       Mode == "B" ~ "Bus",
-                                       Mode == "V" ~ "VCAT")) %>%
+                                Mode == "T" ~ "Taxi",
+                                Mode == "B" ~ "Bus",
+                                Mode == "V" ~ "VCAT")
+              ) %>%
         mutate(Sign = case_when(Estimate >0 ~ "Positive",
-                                    Estimate <=0 ~ "Negative"
-                                    )) %>%
+                                Estimate <=0 ~ "Negative"
+                                )
+               ) %>%
         mutate(ParName = case_when(ParName == "Nat" ~ "Foreigner",
                                    ParName == "Gen" ~ "Male",
                                    ParName == "Job1" ~ "Goverment offical",
-                                 ParName == "Job2" ~ "Businessperson",
-                                 ParName == "Job3" ~ "Students",
-                                 ParName == "Job4" ~ "Professor",
-                                 ParName == "Job5" ~ "Salesperson",
-                                 ParName == "Job6" ~ "Housekeeper",
-                                 ParName == "Job7" ~ "Private firm employee",
-                                 ParName == "Job8" ~ "Self-employes person",
-                                 ParName == "Job9" ~ "Retired",
-                                 ParName == "Job10" ~ "Others",
-                                 ParName == "Age1" ~ "Age ~20", 
-                                 ParName == "Age2" ~ "Age 21-30",
-                                 ParName == "Age3" ~ "Age 31-40",
-                                 ParName == "Age4" ~ "Age 41-50",
-                                 ParName == "Age5" ~ "Age 51-60",
-                                 ParName == "Age6" ~ "Age >60",
-                                 ParName == "Hinc1" ~ "Income (low)",
-                                 ParName == "Hinc2" ~ "Income (Medium)",
-                                 ParName == "Hinc3" ~ "Income (High)",
-                                 ParName == "Hcar" ~ "Number of Cars",
+                                   ParName == "Job2" ~ "Businessperson",
+                                   ParName == "Job3" ~ "Students",
+                                   ParName == "Job4" ~ "Professor",
+                                   ParName == "Job5" ~ "Salesperson",
+                                   ParName == "Job6" ~ "Housekeeper",
+                                   ParName == "Job7" ~ "Private firm employee",
+                                   ParName == "Job8" ~ "Self-employes person",
+                                   ParName == "Job9" ~ "Retired",
+                                   ParName == "Job10" ~ "Others",
+                                   ParName == "Age1" ~ "Age ~20",
+                                   ParName == "Age2" ~ "Age 21-30",
+                                   ParName == "Age3" ~ "Age 31-40",
+                                   ParName == "Age4" ~ "Age 41-50",
+                                   ParName == "Age5" ~ "Age 51-60",
+                                   ParName == "Age6" ~ "Age >60",
+                                   ParName == "Hinc1" ~ "Income (low)",
+                                   ParName == "Hinc2" ~ "Income (Medium)",
+                                   ParName == "Hinc3" ~ "Income (High)",
+                                   ParName == "Hcar" ~ "Number of Cars",
                                    TRUE ~ ParName
-                                    )) %>%
+                                   )
+               ) %>%
         mutate(Impact = case_when(`Pr(> t)` <=0.1 ~ "Significant",
                                   TRUE ~ "Unsignificant"
                                     ))-> data_plot
 ```
 
 ```{r, echo=FALSE}
-
  ggplot(data_plot,mapping = aes(x = ParName, y = Estimate, fill = Impact))+
          geom_col() +
          coord_flip() +
@@ -204,7 +204,6 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 ```
 
 ```{r}
-
  ggplot(data_plot,mapping = aes(x = ParName, y = `Pr(> t)`, fill = Impact))+
          geom_col() +
          coord_flip() +
@@ -213,7 +212,6 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 ```
 
 ```{r}
-
  ggplot(data_plot,mapping = aes(x = ParName, y = `t value`, fill = Impact))+
          geom_col() +
          coord_flip() +
@@ -225,12 +223,12 @@ out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>%
 # <<<Fourth step>>>
 ```{r}
  LL0 <- NROW(data)*log(1/5) ## Initial log-likelihood
-LL1 <- logLik(MNL) ## Converged log-likelihood
-## McFadden's Rho square
-Rho <- 1-(LL1/LL0)
-Rho.adj <- 1-((LL1-length(coef(MNL)))/LL0)
-GoF <- cbind(LL0,LL1, Rho, Rho.adj) ## Goodness of fit
-print(GoF)
+ LL1 <- logLik(MNL) ## Converged log-likelihood
+ ## McFadden's Rho square
+ Rho <- 1-(LL1/LL0)
+ Rho.adj <- 1-((LL1-length(coef(MNL)))/LL0)
+ GoF <- cbind(LL0,LL1, Rho, Rho.adj) ## Goodness of fit
+ knitr::kable (GoF)
 ```
 
 
