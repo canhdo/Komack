@@ -25,32 +25,76 @@ library(dplyr)
 ## Data Reading from CSV file & Cleaning data
 ```{r, echo=FALSE, message = F}
 data <- read_csv("20200423_Data5.csv")
- # Dummies (or indicator) for Age
- data$age1 <- ifelse(data$Age==1, 1, 0) # <=20
- data$age2 <- ifelse(data$Age==2, 1, 0) # =21-30
- data$age3 <- ifelse(data$Age==3, 1, 0) # =31-40
- data$age4 <- ifelse(data$Age==4, 1, 0) # =41-50
- data$age5 <- ifelse(data$Age==5, 1, 0) # =51-60
- data$age6 <- ifelse(data$Age==6, 1, 0) # >60
- 
- 
- # Dummies (or indicator) for Occupation
- data$job1 <- ifelse(data$Job==1, 1, 0) # Goverment offical
- data$job2 <- ifelse(data$Job==2, 1, 0) # Businessperson
- data$job3 <- ifelse(data$Job==3, 1, 0) # Students
- data$job4 <- ifelse(data$Job==4, 1, 0) # Professor
- data$job5 <- ifelse(data$Job==5, 1, 0) # Salesperson
- data$job6 <- ifelse(data$Job==6, 1, 0) # Housekeeper
- data$job7 <- ifelse(data$Job==7, 1, 0) # Private firm employee
- data$job8 <- ifelse(data$Job==8, 1, 0) # Self-employes person
- data$job9 <- ifelse(data$Job==9, 1, 0) # Retired
- data$job10 <- ifelse(data$Job==10, 1, 0) # Others
- 
- 
- # Dummies (or indicator) for Monthly household income
- data$Hinc1 <- ifelse(data$Hinc==1,1,0) # Low income <4,000,000 kip
- data$hinc2 <- ifelse(data$Hinc==2, 1, 0) # 4,000,000 kip< Midle income <10,000,000 kip
- data$hinc3 <- ifelse(data$Hinc==3, 1, 0) # High income >10,000,000 kip
+  # Dummies (or indicator) for Nationality
+
+   data$Nat1   <- ifelse(data$Nationality==1,1,0) #Vientiane resident
+   data$Nat2   <- ifelse(data$Nationality==2,1,0) #Non vientiane resident
+   data$Nat3   <- ifelse(data$Nationality==3,1,0) #Foreign resident
+   data$Lao    <- ifelse(data$Nationality<=2,1,0)  #Lao resident
+
+  # Dummies (or indicator) for Gender
+    data$Male    <- ifelse(data$Gender==1,1,0) #Male
+    data$Female  <- ifelse(data$Gender==0,1,0) #Female
+
+
+  # Dummies (or indicator) for data$Ag
+  data$Age1  <- ifelse(data$Age==1,1,0) # <20
+  data$Age2  <- ifelse(data$Age==2,1,0) # =21-30
+  data$Age3  <- ifelse(data$Age==3,1,0) # =31-40
+  data$Age4  <- ifelse(data$Age==4,1,0) # =41-50
+  data$Age5  <- ifelse(data$Age==5,1,0) # >51
+
+
+  # Dummies (or indicator) for Education
+   data$Edu1    <- ifelse(data$Edu==1,1,0) # Highshool
+   data$Edu2    <- ifelse(data$Edu==2,1,0) # College
+   data$Edu3    <- ifelse(data$Edu==3,1,0) # Bachelor
+   data$Edu4    <- ifelse(data$Edu==4,1,0) # Master
+
+  # Dummies (or indicator) for Occupation
+  data$Job1  <- ifelse(data$Job==1,1,0)  # Goverment offical
+  data$Job2  <- ifelse(data$Job==2,1,0)  # Businessperson
+  data$Job3  <- ifelse(data$Job==3,1,0)  # Students
+  data$Job4  <- ifelse(data$Job==4,1,0)  # Others
+
+  # Dummies (or indicator) for Monthly household income
+  data$Hinc1 <- ifelse(data$Hinc==1,1,0) # Low income <4,000,000 kip
+  data$Hinc2 <- ifelse(data$Hinc==2,1,0) # 4,000,000 kip< Midle income <10,000,000 kip
+  data$Hinc3 <- ifelse(data$Hinc==3,1,0) # High income >10,000,000 kip
+
+  # Dummies (or indicator) for Dependency of others
+
+   data$Dependence1 <- ifelse(data$Dependency==1,1,0) #Car-dropped
+   data$Dependence2 <- ifelse(data$Dependency==2,1,0) #Car-parked
+   data$Dependence3 <- ifelse(data$Dependency==3,1,0) #Shared ride
+
+ # Dummies (or indicator) for Household members
+   data$Hmem1 <- ifelse(data$Hcar==1,1,0) # 1 member
+   data$Hmem2 <- ifelse(data$Hcar==2,1,0) # 2 members
+   data$Hmem3 <- ifelse(data$Hcar==3,1,0) # 3 members
+   data$Hmem4 <- ifelse(data$Hcar==4,1,0) # 4 members
+   data$Hmem5 <- ifelse(data$Hcar==5,1,0) # 5 members
+
+ # Dummies (or indicator) for Number of cars in a Household
+   data$Hcar0 <- ifelse(data$Hcar==0,1,0) # no car
+   data$Hcar1 <- ifelse(data$Hcar==1,1,0) # 1 car
+   data$Hcar2 <- ifelse(data$Hcar==2,1,0) # 2 cars
+   data$Hcar3 <- ifelse(data$Hcar==3,1,0) # 3 cars
+   data$Hcar4 <- ifelse(data$Hcar==4,1,0) # 4 cars
+
+
+  # Dummies (or indicator) for Number of Check-in Luggage
+    data$lug0 <- ifelse(data$ChLug==0,1,0) # no lug
+    data$lug1 <- ifelse(data$ChLug==1,1,0) # 1 lug
+    data$lug2 <- ifelse(data$ChLug==2,1,0) # 2 lug
+    data$lug3 <- ifelse(data$ChLug==3,1,0) # 3 lug
+
+ # Dummies (or indicator) for Trip purpose
+
+    data$tpp1 <- ifelse(data$Tpp==1,1,0) # business trip
+    data$tpp2 <- ifelse(data$Tpp==2,1,0) # holiday trip
+    data$tpp3 <- ifelse(data$Tpp==3,1,0) # education trip
+    data$tpp4 <- ifelse(data$Tpp==4,1,0) # visiting/home trip
 #names(data)
 #knitr::kable(head(data, 10))
 #summary(data)
@@ -86,7 +130,7 @@ data <- read_csv("20200423_Data5.csv")
 
 # Defining Log-likelihoods function
 ```{r, echo=FALSE}
-ll <- function (x, inData)
+LL <- function (x, inData)
 { #Begin function
  
  # Assign name to parameter variables
@@ -101,11 +145,11 @@ ll <- function (x, inData)
  #v3 <- Constant_T + inData$Nationality*Nat_T + inData$Gender*Gen_T + inData$age2*Age2_T + inData$age3*Age3_T + inData$age4*Age4_T + inData$age5*Age5_T + inData$age6*Age6_T + inData$job1*Job1_T + inData$job2*Job2_T + inData$job3*Job3_T + inData$job7*Job4_T + inData$hinc3*Hinc3_T + inData$hinc2*Hinc2_T + inData$Hcar*Hcar_T
  #v4 <- Constant_B + inData$Nationality*Nat_B + inData$Gender*Gen_B + inData$age2*Age2_B + inData$age3*Age3_B + inData$age4*Age4_B + inData$age5*Age5_B + inData$age6*Age6_B + inData$job1*Job1_B + inData$job2*Job2_B + inData$job3*Job3_B + inData$job7*Job4_B + inData$hinc3*Hinc3_B + inData$hinc2*Hinc2_B + inData$Hcar*Hcar_B
  #v5 <- Constant_V + inData$Nationality*Nat_V + inData$Gender*Gen_V + inData$age2*Age2_V + inData$age3*Age3_V + inData$age4*Age4_V + inData$age5*Age5_V + inData$age6*Age6_V + inData$job1*Job1_V + inData$job2*Job2_V + inData$job3*Job3_V + inData$job7*Job4_V + inData$hinc3*Hinc3_V + inData$hinc2*Hinc2_V + inData$Hcar*Hcar_V
-  v2   <- 0    + inData$TCost_Car*Cost   + inData$Vehtime_Car*Vehtime    + inData$Delay_Car*Delay   + inData$Wtime_Car*Wait    + inData$Accesstime_Car*Access   + inData$NoTranfer_Car*Transfer  + inData$ParkFee_Car*Parking
-  v1   <- C1_M   + inData$TCost_MT*Cost    + inData$Vehtime_MT*Vehtime     + inData$Delay_MT*Delay    + inData$Wtime_MT*Wait     + inData$Accesstime_MT*Access    + inData$NoTranfer_MT*Transfer   + inData$ParkFee_MT*Parking
-  v3   <- C3_T   + inData$TCost_Taxi*Cost  + inData$Vehtime_Taxi*Vehtime   + inData$Delay_Taxi*Delay  + inData$Wtime_Taxi*Wait   + inData$Accesstime_Taxi*Access  + inData$NoTranfer_Taxi*Transfer + inData$ParkFee_Taxi*Parking
-  v4   <- C4_B   + inData$TCost_Bus*Cost   + inData$Vehtime_Bus*Vehtime    + inData$Delay_Bus*Delay   + inData$Wtime_Bus*Wait    + inData$Accesstime_Bus*Access   + inData$NoTranfer_Bus*Transfer  + inData$ParkFee_Bus*Parking
-  v5   <- C5_V   + inData$TCost_VCAT*Cost  + inData$Vehtime_VCAT*Vehtime   + inData$Delay_VCAT*Delay  + inData$Wtime_VCAT*Wait   + inData$Accesstime_VCAT*Access  + inData$NoTranfer_VCAT*Transfer + inData$ParkFee_VCAT*Parking
+ v2   <- 0
+ v1   <- C1.M   + inData$Lao*Lao.M + inData$Male*Male.M + inData$Job1*Govt.M + inData$Job2*Busines.M  + inData$Job3*Stud.M + inData$Age2*Age21_30.M + inData$Age3*Age31_40.M + inData$Age4*Age41_50.M  + inData$Hinc2*MidInc.M + inData$Hinc1*LowInc.M + inData$ChLug*Lug.M + inData$Accom*Accom.M + inData$Tpp*BusiTrip.M  + inData$Dependency*Depen.M + inData$WeaCon*Rain.M
+ v3   <- C3.T   + inData$Lao*Lao.T + inData$Male*Male.T + inData$Job1*Govt.T + inData$Job2*Busines.T  + inData$Job3*Stud.T + inData$Age2*Age21_30.T + inData$Age3*Age31_40.T + inData$Age4*Age41_50.T   + inData$Hinc2*MidInc.T + inData$Hinc1*LowInc.T + inData$ChLug*Lug.T + inData$Accom*Accom.T + inData$Tpp*BusiTrip.T  + inData$Dependency*Depen.T + inData$WeaCon*Rain.T
+  v4   <- C4.B   + inData$Lao*Lao.B + inData$Male*Male.B + inData$Job1*Govt.B + inData$Job2*Busines.B   + inData$Job3*Stud.B + inData$Age2*Age21_30.B + inData$Age3*Age31_40.B + inData$Age4*Age41_50.B   + inData$Hinc2*MidInc.B + inData$Hinc1*LowInc.B  + inData$ChLug*Lug.B  + inData$Accom*Accom.B + inData$Tpp*BusiTrip.B   + inData$Dependency*Depen.B + inData$WeaCon*Rain.B
+  v5   <- C5.V   + inData$Lao*Lao.V + inData$Male*Male.V + inData$Job1*Govt.V + inData$Job2*Busines.V   + inData$Job3*Stud.V + inData$Age2*Age21_30.V + inData$Age3*Age31_40.V + inData$Age4*Age41_50.V   + inData$Hinc2*MidInc.V + inData$Hinc1*LowInc.V  + inData$ChLug*Lug.V  + inData$Accom*Accom.V + inData$Tpp*BusiTrip.V   + inData$Dependency*Depen.V + inData$WeaCon*Rain.V
  
  
  # Denominator
@@ -136,17 +180,15 @@ ll <- function (x, inData)
 
 # Model Estimation
 ```{r, message = FALSE, echo=FALSE}
-var_name <- c("Constant_C", "Constant_T", "Constant_B", "Constant_V", "Nat_C", "Nat_T", "Nat_B", "Nat_V", "Gen_C", "Gen_T", "Gen_B", "Gen_V", "Age2_C", "Age2_T", "Age2_B", "Age2_V", "Age3_C", "Age3_T", "Age3_B", "Age3_V", "Age4_C", "Age4_T", "Age4_B", "Age4_V", "Age5_C", "Age5_T", "Age5_B", "Age5_V", "Age6_C", "Age6_T", "Age6_B", "Age6_V", "Job1_C", "Job1_T", "Job1_B", "Job1_V", "Job2_C", "Job2_T", "Job2_B", "Job2_V", "Job3_C", "Job3_T", "Job3_B", "Job3_V", "Job4_C", "Job4_T", "Job4_B", "Job4_V", "Hinc3_C", "Hinc3_T", "Hinc3_B", "Hinc3_V", "Hinc2_C", "Hinc2_T", "Hinc2_B", "Hinc2_V", "Hcar_C", "Hcar_T", "Hcar_B", "Hcar_V")
-var_name <- c("C1_M","C3_T","C4_B","C5_V",
-                "Cost","Vehtime","Delay","Wait","Access","Transfer","Parking")
+#var_name <- c("Constant_C", "Constant_T", "Constant_B", "Constant_V", "Nat_C", "Nat_T", "Nat_B", "Nat_V", "Gen_C", "Gen_T", "Gen_B", "Gen_V", "Age2_C", "Age2_T", "Age2_B", "Age2_V", "Age3_C", "Age3_T", "Age3_B", "Age3_V", "Age4_C", "Age4_T", "Age4_B", "Age4_V", "Age5_C", "Age5_T", "Age5_B", "Age5_V", "Age6_C", "Age6_T", "Age6_B", "Age6_V", "Job1_C", "Job1_T", "Job1_B", "Job1_V", "Job2_C", "Job2_T", "Job2_B", "Job2_V", "Job3_C", "Job3_T", "Job3_B", "Job3_V", "Job4_C", "Job4_T", "Job4_B", "Job4_V", "Hinc3_C", "Hinc3_T", "Hinc3_B", "Hinc3_V", "Hinc2_C", "Hinc2_T", "Hinc2_B", "Hinc2_V", "Hcar_C", "Hcar_T", "Hcar_B", "Hcar_V")
+var_name <- c("C1.M","C3.T","C4.B","C5.V","Lao.M" ,"Lao.T" ,"Lao.B" ,"Lao.V" ,"Male.M" ,"Male.T" ,"Male.B" ,"Male.V" ,"Age21_30.M" ,"Age21_30.T" ,"Age21_30.B" ,"Age21_30.V" ,"Age31_40.M" ,"Age31_40.T" ,"Age31_40.B" ,"Age31_40.V" ,"Age41_50.M" ,"Age41_50.T" ,"Age41_50.B" ,"Age41_50.V" ,"Govt.M" ,"Govt.T" ,"Govt.B" ,"Govt.V" ,"Busines.M" ,"Busines.T" ,"Busines.B" ,"Busines.V" ,"Private.M" ,"Private.T" ,"Private.B" ,"Private.V" ,"Stud.M" ,"Stud.T" ,"Stud.B" ,"Stud.V" ,"LowInc.M" ,"LowInc.T" ,"LowInc.B" ,"LowInc.V" ,"MidInc.M" ,"MidInc.T" ,"MidInc.B" ,"MidInc.V" ,"Lug.M" ,"Lug.T" ,"Lug.B" ,"Lug.V" ,"Accom.M" ,"Accom.T" ,"Accom.B" ,"Accom.V" ,"BusiTrip.M" ,"BusiTrip.T" ,"BusiTrip.B" ,"BusiTrip.V" ,"Depen.M" ,"Depen.T" ,"Depen.B" ,"Depen.V" ,"Rain.M" ,"Rain.T" ,"Rain.B" ,"Rain.V" )
 init_value <- rep(0, length(var_name))
 names(init_value) <- var_name
 
-MNL <- maxLik(logLik = ll,
+MNL <- maxLik(logLik = LL,
               start = init_value,
               inData = data,
-              #tol = 1e-6,
-              iterlim = 5000, method = "BFGS",control = list(printLevel = 1)
+              tol = 1e-6, iterlim = 5000, method = "BFGS",control = list(printLevel = 1)
               )
 ```
 
@@ -164,7 +206,7 @@ print(summary(MNL))
 ```{r, echo=FALSE}
 out_comp <- as.data.frame(out$estimate) %>% round(.,2) %>% 
         rownames_to_column(var = "ParName") %>%
-        separate(col = "ParName", into = c("ParName", "Mode")) %>%
+        separate(col = "ParName", into = c("ParName", "Mode"), sep = ".") %>%
         mutate(Mode = case_when(TRUE ~ Mode,
                                 Mode == "M" ~ "MotorBike",
                                 Mode == "C" ~ "Car",

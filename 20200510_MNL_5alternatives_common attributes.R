@@ -1,0 +1,252 @@
+########## Multinomial Logit Model ##########
+#### Individual Unit ##########
+##### Access mode choices ##### Sample size: 1042 Observations #####
+# Code: 1 (Motorbike); 2 (Private car); 3 (Taxi); 4 (Airport bus); 5 (VCAT)#
+
+# Calling needed libraries
+library(readr)
+library(bbmle)
+#<<<First step>>>
+##### Data Reading from csv file #####
+
+     data <- read_csv("20200423_Data5.csv")
+     names(data)
+     summary(data)
+   # Dummies (or indicator) for Nationality
+
+   data$Nat1   <- ifelse(data$Nationality==1,1,0) #Vientiane resident
+   data$Nat2   <- ifelse(data$Nationality==2,1,0) #Non vientiane resident
+   data$Nat3   <- ifelse(data$Nationality==3,1,0) #Foreign resident
+   data$Lao    <- ifelse(data$Nationality<=2,1,0)  #Lao resident
+
+  # Dummies (or indicator) for Gender
+    data$Male    <- ifelse(data$Gender==1,1,0) #Male
+    data$Female  <- ifelse(data$Gender==0,1,0) #Female
+
+
+  # Dummies (or indicator) for data$Ag
+  data$Age1  <- ifelse(data$Age==1,1,0) # <20
+  data$Age2  <- ifelse(data$Age==2,1,0) # =21-30
+  data$Age3  <- ifelse(data$Age==3,1,0) # =31-40
+  data$Age4  <- ifelse(data$Age==4,1,0) # =41-50
+  data$Age5  <- ifelse(data$Age==5,1,0) # >51
+
+
+  # Dummies (or indicator) for Education
+   data$Edu1    <- ifelse(data$Edu==1,1,0) # Highshool
+   data$Edu2    <- ifelse(data$Edu==2,1,0) # College
+   data$Edu3    <- ifelse(data$Edu==3,1,0) # Bachelor
+   data$Edu4    <- ifelse(data$Edu==4,1,0) # Master
+
+  # Dummies (or indicator) for Occupation
+  data$Job1  <- ifelse(data$Job==1,1,0)  # Goverment offical
+  data$Job2  <- ifelse(data$Job==2,1,0)  # Businessperson
+  data$Job3  <- ifelse(data$Job==3,1,0)  # Students
+  data$Job4  <- ifelse(data$Job==4,1,0)  # Others
+
+  # Dummies (or indicator) for Monthly household income
+  data$Hinc1 <- ifelse(data$Hinc==1,1,0) # Low income <4,000,000 kip
+  data$Hinc2 <- ifelse(data$Hinc==2,1,0) # 4,000,000 kip< Midle income <10,000,000 kip
+  data$Hinc3 <- ifelse(data$Hinc==3,1,0) # High income >10,000,000 kip
+
+  # Dummies (or indicator) for Dependency of others
+
+   data$Dependence1 <- ifelse(data$Dependency==1,1,0) #Car-dropped
+   data$Dependence2 <- ifelse(data$Dependency==2,1,0) #Car-parked
+   data$Dependence3 <- ifelse(data$Dependency==3,1,0) #Shared ride
+
+ # Dummies (or indicator) for Household members
+   data$Hmem1 <- ifelse(data$Hcar==1,1,0) # 1 member
+   data$Hmem2 <- ifelse(data$Hcar==2,1,0) # 2 members
+   data$Hmem3 <- ifelse(data$Hcar==3,1,0) # 3 members
+   data$Hmem4 <- ifelse(data$Hcar==4,1,0) # 4 members
+   data$Hmem5 <- ifelse(data$Hcar==5,1,0) # 5 members
+
+ # Dummies (or indicator) for Number of cars in a Household
+   data$Hcar0 <- ifelse(data$Hcar==0,1,0) # no car
+   data$Hcar1 <- ifelse(data$Hcar==1,1,0) # 1 car
+   data$Hcar2 <- ifelse(data$Hcar==2,1,0) # 2 cars
+   data$Hcar3 <- ifelse(data$Hcar==3,1,0) # 3 cars
+   data$Hcar4 <- ifelse(data$Hcar==4,1,0) # 4 cars
+
+
+  # Dummies (or indicator) for Number of Check-in Luggage
+    data$lug0 <- ifelse(data$ChLug==0,1,0) # no lug
+    data$lug1 <- ifelse(data$ChLug==1,1,0) # 1 lug
+    data$lug2 <- ifelse(data$ChLug==2,1,0) # 2 lug
+    data$lug3 <- ifelse(data$ChLug==3,1,0) # 3 lug
+
+ # Dummies (or indicator) for Trip purpose
+
+    data$tpp1 <- ifelse(data$Tpp==1,1,0) # business trip
+    data$tpp2 <- ifelse(data$Tpp==2,1,0) # holiday trip
+    data$tpp3 <- ifelse(data$Tpp==3,1,0) # education trip
+    data$tpp4 <- ifelse(data$Tpp==4,1,0) # visiting/home trip
+## Calculating New TTime
+    data$TT_MT = data$Vehtime_MT +  data$Accesstime_MT + data$Wtime_MT + data$Safe_MT #+ data$Delay_MT
+    data$TT_Car = data$Vehtime_Car + data$Accesstime_Car + data$Wtime_Car + data$Safe_Car
+    data$TT_Taxi = data$Vehtime_Taxi +  data$Accesstime_Taxi + data$Wtime_Taxi + data$Safe_Taxi #+ data$Delay_Taxi
+    data$TT_Bus = data$Vehtime_Bus +  data$Accesstime_Bus + data$Wtime_Bus + data$Safe_Bus
+    data$TT_VCAT = data$Vehtime_VCAT +  data$Accesstime_VCAT + data$Wtime_VCAT + data$Safe_VCAT
+## Dummy variable for transfer
+  data$NoTranfer_VCAT = 1
+## Delay time
+  data$Delay_MT = 0
+#<<<Second step>>>
+##### Defining Log-likehood function #####
+LL <- function (C.M,C.T,C.B,C.V,
+                Cost,
+                Parking,
+                #TTime,
+                Vehtime,
+                #Delay,
+                #Wait,
+                #Access,
+                Transfer
+        )
+   { #Begin function
+
+  # Utility function
+  V.M   <- C.M   + data$TCost_MT*Cost +
+                   data$ParkFee_MT*Parking +
+                    #data$TT_MT*TTime
+                   data$Vehtime_MT*Vehtime +
+                   #data$Wtime_MT*Wait +
+    # data$Accesstime_MT*Access    +
+                   data$NoTranfer_MT*Transfer
+
+  V.C   <- 0    + data$TCost_Car*Cost +
+                  data$ParkFee_Car*Parking +
+                  #data$TT_Car*TTime +
+                  data$Vehtime_Car*Vehtime +
+                  #data$Delay_Car*Delay +
+                  # + data$Wtime_Car*Wait    + data$Accesstime_Car*Access
+                  data$NoTranfer_Car*Transfer
+
+  V.T   <- C.T   + data$TCost_Taxi*Cost +
+                  0 +
+                 #data$TT_Taxi*TTime
+                  data$Vehtime_Taxi*Vehtime +
+                  #data$Delay_Taxi*Delay +
+                   #+ data$Wtime_Taxi*Wait   +
+                    # data$Accesstime_Taxi*Access  +
+                  data$NoTranfer_Taxi*Transfer
+
+  V.B   <- C.B   + data$TCost_Bus*Cost   +
+                    #data$TT_Bus*TTime
+                    data$Vehtime_Bus*Vehtime +
+                  #data$Delay_Bus*Delay +
+                  #data$Wtime_Bus*Wait    +
+                  #   data$Accesstime_Bus*Access   +
+                  data$NoTranfer_Bus*Transfer
+
+  V.V   <- C.V   + data$TCost_VCAT*Cost  +
+                  #data$TT_VCAT*TTime
+                   data$Vehtime_VCAT*Vehtime +
+                  #data$Delay_VCAT*Delay +
+                  #data$Wtime_VCAT*Wait   +
+                  #data$Accesstime_VCAT*Access  +
+                  data$NoTranfer_VCAT*Transfer
+
+  # Denominator
+    Sum <- exp(V.M) + exp(V.C) + exp(V.T) + exp(V.B) + exp(V.V)
+
+    # Probabilities
+  P.M <- exp(V.M)/Sum
+  P.C <- exp(V.C)/Sum
+  P.T <- exp(V.T)/Sum
+  P.B <- exp(V.B)/Sum
+  P.V <- exp(V.V)/Sum
+
+  # Dummies (or indicator) for alternatives
+  D.M <- ifelse(data$Mode == "Motorbike",1,0)
+  D.C <- ifelse(data$Mode == "Car",1,0)
+  D.T <- ifelse(data$Mode == "Taxi",1,0)
+  D.B <- ifelse(data$Mode == "Bus",1,0)
+  D.V <- ifelse(data$Mode == "VCAT",1,0)
+
+  # Log-likelihood function
+  L <- -(sum(D.M*log(P.M) + D.C*log(P.C) + D.T*log(P.T) + D.B*log(P.B) + D.V*log(P.V)))
+  return(L)
+} #End function
+
+#<<<Third step>>>
+##### Model Estimation #####
+  initValue <- list(C.M=0,C.T=0,C.B=0,C.V=0,
+                    Cost=0,
+                    Parking=0,
+                    #TTime=0
+                    Vehtime=0,
+                    #Delay=0,
+                    # Wait=0,
+                    #Access=0,
+                    Transfer=0
+
+                   )
+  
+  
+  #install packages: NoOTICE: Packages is needed to install for the first time using the packages
+  # install.packages("bbmle")
+
+  MNL <- mle2(LL, start = initValue, method = "BFGS", control = list(trace = 10000, maxit = 10000))
+   out <- summary(MNL)
+  out
+
+
+out_comp <- as.data.frame(out@coef) %>% round(.,7) %>%
+        rownames_to_column(var = "ParName") %>%
+        separate(col = "ParName", into = c("ParName", "Mode"), sep = "([\\.])") %>%
+        mutate(Mode = case_when(TRUE ~ Mode,
+                                Mode == "M" ~ "MotorBike",
+                                Mode == "C" ~ "Car",
+                                Mode == "T" ~ "Taxi",
+                                Mode == "B" ~ "Bus",
+                                Mode == "V" ~ "VCAT")
+              ) %>%
+        mutate(Sign = case_when(Estimate >  0 ~ "Positive",
+                                Estimate <= 0 ~ "Negative"
+                                )
+               ) %>%
+        mutate(ParName = case_when(ParName == "Nat" ~ "Foreigner",
+                                   ParName == "Gen" ~ "Male",
+                                   ParName == "Job1" ~ "Goverment offical",
+                                   ParName == "Job2" ~ "Businessperson",
+                                   ParName == "Job3" ~ "Students",
+                                   ParName == "Job4" ~ "Professor",
+                                   ParName == "Job5" ~ "Salesperson",
+                                   ParName == "Job6" ~ "Housekeeper",
+                                   ParName == "Job7" ~ "Private firm employee",
+                                   ParName == "Job8" ~ "Self-employes person",
+                                   ParName == "Job9" ~ "Retired",
+                                   ParName == "Job10" ~ "Others",
+                                   ParName == "Age1" ~ "Age ~20",
+                                   ParName == "Age2" ~ "Age 21-30",
+                                   ParName == "Age3" ~ "Age 31-40",
+                                   ParName == "Age4" ~ "Age 41-50",
+                                   ParName == "Age5" ~ "Age 51-60",
+                                   ParName == "Age6" ~ "Age >60",
+                                   ParName == "Hinc1" ~ "Income (low)",
+                                   ParName == "Hinc2" ~ "Income (Medium)",
+                                   ParName == "Hinc3" ~ "Income (High)",
+                                   ParName == "Hcar" ~ "Number of Cars",
+                                   TRUE ~ ParName
+                                   )
+               ) %>%
+        mutate(Impact = case_when(`Pr(z)` <=0.1 ~ "Significant",
+                                  TRUE ~ "Unsignificant"
+                                    ))-> data_plot
+
+ ggplot(data_plot,mapping = aes(x = Mode, y = Estimate, fill = Impact))+
+         geom_col() +
+         coord_flip() +
+         facet_wrap(~ ParName)
+
+#<<<Fourth step>>>
+  LL0 <- NROW(data)*log(1/5)     ## Initial log-likelihood
+  LL1 <- logLik(MNL)             ## Converged log-likelihood
+  ## McFadden's Rho square
+  Rho     <- 1-(LL1/LL0)
+  Rho.adj <- 1-((LL1-length(coef(MNL)))/LL0)
+  GoF <- cbind(LL0,LL1, Rho, Rho.adj)  ## Goodness of fit
+  print(GoF)
+
