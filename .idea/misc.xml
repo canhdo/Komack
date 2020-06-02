@@ -42,6 +42,13 @@
             </RMarkdownRenderProfile>
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/MNL.rmd">
+          <value>
+            <RMarkdownRenderProfile>
+              <option name="knitRootDirectory" value="$PROJECT_DIR$" />
+            </RMarkdownRenderProfile>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/MNL_Alternative_Attributes.rmd">
           <value>
             <RMarkdownRenderProfile>
